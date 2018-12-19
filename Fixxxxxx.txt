@@ -1,0 +1,7 @@
+add UI
+Resolution Problem
+add Sound
+add Computer with interaction //done
+half jumping problem reverse problem -> running fixxx //done
+normal fall doesn't hurt player
+face camera idle //done

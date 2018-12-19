@@ -1,0 +1,6 @@
+Known issues:
+
+- Sometimes player can't use terminal.
+- Terminal camera crashes.
+- Player can open or close door twice.
+- Player can't get hurt by fall.
