@@ -2,3 +2,5 @@
 'Shift' key for run.
 'F' key for interaction.
 'Jump' key for jump.
+
+'help','list','restart','logs','exit','clear' commands are acceptable.
