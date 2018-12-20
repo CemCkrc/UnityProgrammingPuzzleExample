@@ -36,7 +36,7 @@ It's a basic Unity project example for learning. Has lots of bugs, non optimised
 
 ## Authors
 
-* **Cem ÇAKIRCA** - *All development stages* - [CemCkrc](https://github.com/CemCkrc
+* **Cem ÇAKIRCA** - *All development stages* - [CemCkrc](https://github.com/CemCkrc)
 
 ## License
 
