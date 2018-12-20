@@ -13,7 +13,7 @@ public class TerminalCommands
             "'list' : List objects which terminal can connect\nobject + 'list' : List objects which connected an object\n" +
         "'connect' + object : Connect object to terminal\nobject + 'connect' + object : Connect two object using terminal\n" +
         "'functions' : Connected object's properties\nobject + 'functions' : Object's properties\n" +
-        "'do' + function : Performs the task of connected object\n'logs' : Show computer's data\n" +
+        "'do' + function : Perform the task of connected object\n'logs' : Show computer's data\n" +
         "'clear' : Clear the terminal screen\n";
 
     public static readonly string log = "Videoyun\n";

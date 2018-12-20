@@ -1858,7 +1858,7 @@ Prefab:
     - target: {fileID: 111770092984503690, guid: 16bb4c0c10d566e408f9bab106cb490a,
         type: 2}
       propertyPath: m_Animations.Array.size
-      value: 5
+      value: 4
       objectReference: {fileID: 0}
     - target: {fileID: 4481702547388106, guid: 16bb4c0c10d566e408f9bab106cb490a, type: 2}
       propertyPath: m_LocalPosition.x

@@ -5,11 +5,14 @@ using UnityEngine.UI;
 
 public class TerminalInteraction : MonoBehaviour {
 
+    //Terminal Light (Green)
     private Light terLight;
-
+    
+    //Connected objects 
     [SerializeField]
     List<GameObject> connectedObjects = new List<GameObject>();
 
+    //Terminal states
     public bool isActiveted = false;
     public bool isOpened = false;
     public bool wantExit = false;
@@ -17,25 +20,33 @@ public class TerminalInteraction : MonoBehaviour {
     private bool isUser = false;
     private bool isSelectObj = false;
 
+    // <will> If object closed (e.g. Open/Close door)
+    // <will> selected object
     private bool objClosed = true;
     GameObject tempObj;
 
+    //Terminal screen string
+    //Player inputs screen
     [SerializeField] Text terScreen;
     private string temp;
 
+    //Initialize variables before game starts
     void Awake()
     {
         temp = "";
         tempObj = null;
         terLight = GetComponentInChildren<Light>();
+        terScreen.enabled = false;
     }
 
+    //Update terminal later
     void LateUpdate()
     {
         if (isActiveted)
         {
             if (!isOpened && !isWorking)
             {
+                terScreen.enabled = true;
                 StartCoroutine(OpeningTerminal());
             }
             else if (isWorking && isOpened)
@@ -45,6 +56,7 @@ public class TerminalInteraction : MonoBehaviour {
         }
     }
 
+    //Check player inputs to terminal screen 
     private void TerminalUpdate()
     {
         foreach (char letter in Input.inputString)
@@ -70,127 +82,57 @@ public class TerminalInteraction : MonoBehaviour {
         }
     }
 
+    //Execute command
     private void CommandUpdate(string command)
     {
-
-        if (TerminalCommands.computerCommands.Contains(command))
-        {
             int selected = TerminalCommands.computerCommands.IndexOf(command);
-            switch (selected)   //Degistirilecek
+
+            if(selected == 0)
             {
-                case 0:
-                    TerminalHelp();
-                    break;
-                case 1:
-                    terScreen.text += "\nRestarting...";
-                    StartCoroutine(OpeningTerminal());
-                    break;
-                case 2:
-                    TerminalClear();
-                    break;
-                case 3:
-                    TerminalList(command);
-                    break;
-                case 4:
-                    TerminalConnect();
-                    break;
-                case 5:
-                    TerminalFunction();
-                    break;
-                case 6:
-                    TerminalDo();
-                    break;
-                case 7:
-                    TerminalLogs();
-                    break;
-                case 8:
-                    wantExit = true;
-                    break;
-                /*
-                case 9:
-                    gameObject.funtion(bool);
-                    break;
-                */
-                default:
-                    terScreen.text += "\nWrong command.. Please enter again : ";
-                    break;
+                TerminalHelp();
             }
-        }
-        else
-        {
-            terScreen.text += "\nWrong command.. Please enter again : ";
-        }
-
-
-
-
-        //User kontrolu oldugunda
-        /*if (!isUser && command == "user")
-        {
-            isUser = true;
-            terScreen.text = "Welcome user.\n";
-            foreach (GameObject obj in connectedObjects)
+            else if(selected == 1)
             {
-                terScreen.text += "- " + obj.name + "\n";
+                terScreen.text += "\nRestarting...";
+                StartCoroutine(OpeningTerminal());
             }
-            terScreen.text += "Select item: ";
-        }
-        else if (command == "exit")
-        {
-            temp = "";
-            wantExit = true;
-        }
-        else
-        {
-            terScreen.text = "Wrong command.. Please enter again : ";
-        }
-        else if (isUser)
-        {
-            if (!isSelectObj)
+            else if(selected == 2)
             {
-                foreach (GameObject obj in connectedObjects)
-                {
-                    if (temp == obj.name)
-                    {
-                        tempObj = obj;
-                        isSelectObj = true;
-                        terScreen.text = "open or close? : ";
-                    }
-                    else
-                    {
-                        terScreen.text = "Wrong command.. Please enter again : ";
-                    }
-                }
+                TerminalClear();
+            }
+            else if(selected == 3)
+            {
+                TerminalList(command);
+            }
+            else if(selected == 4)
+            {
+                TerminalConnect();
+            }
+            else if(selected == 5)
+            {
+                TerminalFunction();
+            }
+            else if(selected == 6)
+            {
+                TerminalDo();
+            }
+            else if(selected == 7)
+            {
+                TerminalLogs();
+            }
+            else if(selected == 8)
+            {
+                wantExit = true;
             }
             else
             {
-                if (temp == "open" && objClosed)
-                {
-                    objClosed = false;
-                    terScreen.text = tempObj.name + " is opened. Enter 'exit' to close program :\n";
-                    Vector3 newPos = new Vector3(tempObj.transform.position.x, tempObj.transform.position.y + 3f, tempObj.transform.position.z);
-                    tempObj.transform.position = newPos;
-                }
-                else if (temp == "close" && !objClosed)
-                {
-                    objClosed = true;
-                    terScreen.text = tempObj.name + " is closed. Enter 'exit' to close program :\n";
-                    Vector3 newPos = new Vector3(tempObj.transform.position.x, tempObj.transform.position.y - 3f, tempObj.transform.position.z);
-                    tempObj.transform.position = newPos;
-                }
-                else
-                {
-                    terScreen.text = "Wrong command.. Please enter again : ";
-                }
+                terScreen.text += "\nWrong command.. Please enter again : ";
             }
-        }
-        else
-        {
-            terScreen.text = "Wrong command.. Please enter again : ";
-        }*/
         temp = "";
     }
 
+    //If player interacts to terminal 
+    //Terminal screen will available for commands after this function
     private IEnumerator OpeningTerminal()
     {
         isOpened = false;
@@ -211,33 +153,39 @@ public class TerminalInteraction : MonoBehaviour {
         }
     }
 
+    // Return help screen to terminal
     private void TerminalHelp()
     {
         terScreen.text = TerminalCommands.helpCommand;
         terScreen.text += "Enter command : ";
     }
 
+    // <will> Connect object
     private void TerminalConnect()
     {
         return;
     }
 
+    // <will> Return object function(s)
     private void TerminalFunction()
     {
         return;
     }
 
+    // <will> Do gameobject's job which selected from terminal
     private void TerminalDo()
     {
         return;
     }
 
+    //Return logs to terminal screen
     private void TerminalLogs()
     {
         terScreen.text = TerminalCommands.log;
         terScreen.text += "Enter command : ";
     }
 
+    //Check available gameobjects which ones connected terminal
     private void TerminalList(string command)
     {
         if (command.Equals("list") && connectedObjects.Count != 0)
@@ -253,30 +201,15 @@ public class TerminalInteraction : MonoBehaviour {
             terScreen.text = "Can't find connected object";
         }
         terScreen.text += "\nEnter command : ";
-        /*else
-        {
-            foreach (GameObject obj in connectedObjects)
-            {
-
-                if (command == obj.name)
-                {
-                    tempObj = obj;
-                    isSelectObj = true;
-                    terScreen.text = tempObj.name + "connected terminal";
-                }
-                else
-                {
-                    terScreen.text += "\nWrong command.. Please enter again : ";
-                }
-            }
-        }*/
     }
 
+    //Clear terminal screen
     private void TerminalClear()
     {
         terScreen.text = "Enter command : ";
     }
 
+    //Exit terminal
     public void Exit()
     {
         terScreen.text = "";
@@ -286,6 +219,7 @@ public class TerminalInteraction : MonoBehaviour {
         isUser = false;
         isSelectObj = false;
         terLight.range = 0f;
+        terScreen.enabled = false;
     }
 
 }
