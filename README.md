@@ -19,6 +19,7 @@ It's a basic Unity project example for learning. Has lots of bugs, non optimised
 - 'Shift' key for sprint
 - 'Space' key for Jump
 - 'Shift' && 'C' for slide
+- 'Right' click to zoom
 
 ###### Terminal Controls
 - 'help' command for terminal help
