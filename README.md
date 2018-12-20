@@ -28,10 +28,6 @@ It's a basic Unity project example for learning. Has lots of bugs, non optimised
 - 'exit' command for exit terminal
 - 'clear' command for clear terminal screen
 
-
-
-help','list','restart','logs','exit','clear'
-
 ## Useful Tools
 
 * [Unity](https://unity3d.com/get-unity/download) - Game Engine (This project verison is : 2018.2.16f1)
