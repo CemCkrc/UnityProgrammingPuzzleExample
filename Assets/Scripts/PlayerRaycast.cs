@@ -10,12 +10,14 @@ public class PlayerRaycast : MonoBehaviour {
     [SerializeField] Camera playerCam;
     [SerializeField] private float rayLength;
 
+    //Initialize variables before game starts
     void Awake()
     {
         playerC = GetComponent<PlayerController>();
         terminal = null;
     }
 
+    //Check for if camera hits something (useful)
     void Update()
     {
         RaycastHit hit;
@@ -29,6 +31,7 @@ public class PlayerRaycast : MonoBehaviour {
 
             if(hit.collider.isTrigger)
             {
+                //using tags
                 if (hit.collider.tag == "ClimbUp")
                 {
                     playerC.canClimb = true;

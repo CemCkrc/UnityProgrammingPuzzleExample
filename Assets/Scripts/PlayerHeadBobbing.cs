@@ -1,6 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+//It is an old headbobbing script
+
 public class PlayerHeadBobbing : MonoBehaviour
 {
 
@@ -16,7 +18,7 @@ public class PlayerHeadBobbing : MonoBehaviour
         float horizontal = Input.GetAxis("Horizontal");
         float vertical = Input.GetAxis("Vertical");
 
-        Vector3 cSharpConversion = transform.localPosition;
+        Vector3 conversion = transform.localPosition;
 
         if (Mathf.Abs(horizontal) == 0 && Mathf.Abs(vertical) == 0)
         {
@@ -37,13 +39,13 @@ public class PlayerHeadBobbing : MonoBehaviour
             float totalAxes = Mathf.Abs(horizontal) + Mathf.Abs(vertical);
             totalAxes = Mathf.Clamp(totalAxes, 0.0f, 1.0f);
             translateChange = totalAxes * translateChange;
-            cSharpConversion.y = midpoint + translateChange;
+            conversion.y = midpoint + translateChange;
         } 
         else
         {
-            cSharpConversion.y = midpoint;
+            conversion.y = midpoint;
         }
 
-        transform.localPosition = cSharpConversion;
+        transform.localPosition = conversion;
     }
 }

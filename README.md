@@ -12,7 +12,7 @@ It's a basic Unity project example for learning. Has lots of bugs, non optimised
 - You can open scene in ~/Assets/Scenes/
 - For test the scene:
 
-###### -- Player Controls --
+###### Player Controls
 - 'W','A','S','D' keys for move player
 - 'F' key interats about objects
 - 'C' key for crouch
@@ -20,7 +20,7 @@ It's a basic Unity project example for learning. Has lots of bugs, non optimised
 - 'Space' key for Jump
 - 'Shift' && 'C' for slide
 
-###### -- Terminal Controls--
+###### Terminal Controls
 - 'help' command for terminal help
 - 'list' command for list connected objects
 - 'restart' command for restart terminal screen
@@ -30,9 +30,9 @@ It's a basic Unity project example for learning. Has lots of bugs, non optimised
 
 ## Useful Tools
 
-* [Unity](https://unity3d.com/get-unity/download) - Game Engine (This project verison is : 2018.2.16f1)
+* [Unity](https://unity3d.com/get-unity/download) - Game Engine (This project version is : 2018.2.16f1)
 * [Blender](https://www.blender.org/download/) - 3D Gameobjects
-* [Paint.net](https://www.getpaint.net/download.html) - Used for 
+* [Paint.net](https://www.getpaint.net/download.html) - Used for textures
 
 ## Authors
 

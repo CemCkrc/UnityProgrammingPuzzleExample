@@ -34,6 +34,7 @@ public class PlayerLook : MonoBehaviour
 
     private float xAxisClamp;
 
+    //Initialize variables before game starts
     private void Awake()
     {
         LockCursor();
@@ -42,6 +43,7 @@ public class PlayerLook : MonoBehaviour
         playerCam = GetComponent<Camera>();
     }
 
+    //Lock cursor (useful)
     private void LockCursor()
     {
         Cursor.lockState = CursorLockMode.Locked;
@@ -57,6 +59,7 @@ public class PlayerLook : MonoBehaviour
         }
     }
 
+    //Right click to zoom or default
     private void CameraZoom()
     {
         if(Input.GetMouseButtonDown(1))
@@ -75,6 +78,7 @@ public class PlayerLook : MonoBehaviour
         }
     }
 
+    //Player looks
     private void CameraRotation()
     {
         float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
@@ -98,6 +102,7 @@ public class PlayerLook : MonoBehaviour
         playerBody.Rotate(Vector3.up * mouseX);
     }
 
+    //Limit the view of the player camera
     private void ClampXAxisRotationToValue(float value)
     {
         Vector3 eulerRotation = transform.eulerAngles;
@@ -105,6 +110,7 @@ public class PlayerLook : MonoBehaviour
         transform.eulerAngles = eulerRotation;
     }
 
+    //Set player camera (Needs to fix!) 
     public void CrouchSet(bool setVal)
     {
         if (setVal == true)
@@ -124,6 +130,7 @@ public class PlayerLook : MonoBehaviour
         }
     }
 
+    //If player is Idle
     public void Breathing()
     {
         if (highBreath)
@@ -151,6 +158,7 @@ public class PlayerLook : MonoBehaviour
         }
     }
 
+    //If player is moving
     private void HeadBobbing()
     {
         float waveslice = 0.0f;

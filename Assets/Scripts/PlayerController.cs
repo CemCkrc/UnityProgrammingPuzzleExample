@@ -5,7 +5,6 @@ using UnityEngine.UI;
 
 public class PlayerController : MonoBehaviour
 {
-
     [SerializeField] private Text staminaBar;
     [SerializeField] private Text healthBar;
 
@@ -70,7 +69,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private AnimationCurve jumpFallOff;
     [SerializeField] private float jumpMultiplier;
 
-
+    //Initialize variables before game starts
     void Awake()
     {
         playerSpeed = normalSpeed;
@@ -81,12 +80,14 @@ public class PlayerController : MonoBehaviour
         playerHit = GetComponentInChildren<PlayerHitCeil>();
     }
 
+    //Update every fixed frame-rate frame
     private void FixedUpdate()
     {
         PlayerMovement();
         InterfaceUpdate();
     }
 
+    //Check player movements
     private void PlayerMovement()
     {
         vertInput = Input.GetAxis("Vertical");
@@ -109,10 +110,13 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    //If player is moving
     private void Move()
     {
         Vector3 forwardMovement = transform.forward * vertInput;
         Vector3 rightMovement = transform.right * horizInput;
+
+        //If player is running
         if (Input.GetButton("Run") && !isExhausted) 
         {
             if(isCrouching)
@@ -140,6 +144,8 @@ public class PlayerController : MonoBehaviour
                 }
             }
         }
+
+        //If player is sliding
         else if(Input.GetButtonUp("Run"))
         {
             slideTimer = 0f;
@@ -157,7 +163,10 @@ public class PlayerController : MonoBehaviour
         }
         charController.SimpleMove(Vector3.ClampMagnitude(forwardMovement + rightMovement, 1.0f) * playerSpeed);
     }
+    
+    #region JumpEvents
 
+    //If player is jumping
     private void Jump()
     {
         if (Input.GetButtonDown("Jump") && charController.isGrounded && !isExhausted)
@@ -167,8 +176,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    #region JumpEvents
-
+    //Jump event
     private IEnumerator JumpEvent()
     {
         if (isCrouching)
@@ -208,11 +216,14 @@ public class PlayerController : MonoBehaviour
 
     #endregion
 
+    #region CrouchEvent
 
     private void Crouch()
     {
+        //If player is crouching
         if (Input.GetButtonDown("Crouch"))
         {
+            //If player is sliding
             if(slideTimer >= 1.5f)
             {
                 isSliding = true;
@@ -245,8 +256,11 @@ public class PlayerController : MonoBehaviour
             charController.height = Mathf.Lerp(charController.height, 2f, Time.deltaTime * 20);
         }
     }
-    
 
+    #endregion
+
+
+    //Animation Event (Needs to fix!)
     public IEnumerator AnimationEvent(string animName, float waitTime)
     {
         regularCam.enabled = false;
@@ -281,6 +295,7 @@ public class PlayerController : MonoBehaviour
 
     }
 
+    //Terminal Event
     public IEnumerator TerminalEvent(Transform pos,bool isExiting)
     {
         parkourCam.enabled = true;
@@ -292,8 +307,8 @@ public class PlayerController : MonoBehaviour
         }
         do
         {
-                parkourCam.transform.position = Vector3.Lerp(parkourCam.transform.position, pos.position, Time.deltaTime * 4);
-                parkourCam.transform.rotation = Quaternion.Slerp(parkourCam.transform.rotation, pos.rotation, Time.deltaTime * 4);
+            parkourCam.transform.position = Vector3.Lerp(parkourCam.transform.position, pos.position, Time.deltaTime * 4);
+            parkourCam.transform.rotation = Quaternion.Slerp(parkourCam.transform.rotation, pos.rotation, Time.deltaTime * 4);
             if(isExiting)
             {
                 freakTime += Time.deltaTime;
@@ -322,6 +337,7 @@ public class PlayerController : MonoBehaviour
         yield return new WaitForSeconds(1.5f);
     }
 
+    //Idle control
     private bool isIdle()
     {
         if (charController.velocity.magnitude == 0.0f)
@@ -340,6 +356,7 @@ public class PlayerController : MonoBehaviour
         }
     }
     
+    //Interface Update
     private void InterfaceUpdate()
     {
         if(isHurting)
@@ -351,6 +368,7 @@ public class PlayerController : MonoBehaviour
         healthBar.text = (Mathf.RoundToInt(health)).ToString();
     }
 
+    //Stamina Update
     private void StaminaUpdate()
     {
         if(isCrouching)
@@ -363,6 +381,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    //Check if player is exhausted
     private void PlayerExhausted()
     {
         if (stamina <= 0.0f)
@@ -372,6 +391,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    //Exhausted Time
     private IEnumerator ExhaustedTime()
     {
         stamina = 0.0f;
@@ -381,6 +401,7 @@ public class PlayerController : MonoBehaviour
         isExhausted = false;
     }
 
+    //If player interacts terminal
     public void SetTerminal(bool isTextDisabled)
     {
         if(isTextDisabled == false)

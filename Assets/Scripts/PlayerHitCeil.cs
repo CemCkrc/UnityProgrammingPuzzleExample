@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+//Check if player head is hitting
+
 public class PlayerHitCeil : MonoBehaviour {
 
     public bool isHitCeil;

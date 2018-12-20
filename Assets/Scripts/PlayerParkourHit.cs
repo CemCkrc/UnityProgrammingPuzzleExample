@@ -8,12 +8,14 @@ public class PlayerParkourHit : MonoBehaviour {
     [SerializeField] Camera parkourCam;
     [SerializeField] private float rayLength = 0.1f;
 
+    //Initialize variables before game starts
     void Awake()
     {
         playerC = GetComponentInParent<PlayerController>();
         parkourCam = GetComponent<Camera>();
     }
 
+    //If player hit while is sliding.
     void Update()
     {
 
