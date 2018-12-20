@@ -1,5 +1,5 @@
 'W','A','S','D' for walk.
-'C' for crouch.
+'C' key for crouch.
 'Shift' key for run.
 'F' key for interaction.
 'Jump' key for jump.
