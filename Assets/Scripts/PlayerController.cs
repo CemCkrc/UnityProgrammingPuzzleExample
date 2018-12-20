@@ -292,6 +292,7 @@ public class PlayerController : MonoBehaviour
         isSliding = false;
         Vector3 temp = regularCam.transform.localPosition;
         parkourCam.transform.parent.localPosition = temp;
+        slideTimer = 0f;
 
     }
 
