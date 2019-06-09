@@ -5,104 +5,80 @@ using UnityEngine;
 public class PlayerLook : MonoBehaviour
 {
 
-    public bool canLook = true;
-
-
-    public float bobbingSpeed = 0.1f;
-    public float bobbingHeight = 0.2f;
+    float verLook, horizLook;
+    public float mouseSensitivity = 60f;
+    private float xAxisClamp;
+    [SerializeField] private Transform playerBody;
 
     private float timer = 0.0f;
+    public float bobbingSpeed = 0.1f;
+    public float bobbingHeight = 0.2f;
+    public float midPoint = 0.9f;
 
-    public float minHigh = 0.6f;
-    public float maxHigh = 0.7f;
+    public bool isZoomed = false;
+    private Camera cam;
+    float normalFOV = 60f, zoomedFOV = 30f;
 
-    [Range(1f, 3f)]
-    public float freakness = 1f;
-    public float breathingTime;
-    public float movement = 0.6f;
-    private bool highBreath = false;
-    public bool crouch = false;
-
-    private bool isZoomed = false;
-    private int zoom = 30; 
-    private int normal = 60;
-    public float smooth = 5f;
-
-    public float mouseSensitivity;
-    private Transform playerBody;
-    private Camera playerCam;
-
-    private float xAxisClamp;
-
-    //Initialize variables before game starts
-    private void Awake()
+    public void isCrouched(bool crouch)
     {
-        LockCursor();
-        xAxisClamp = 0.0f;
-        playerBody = GameObject.FindGameObjectWithTag("Player").transform;
-        playerCam = GetComponent<Camera>();
+        if (crouch)
+            midPoint = 0.4f;
+        else
+            midPoint = 0.9f;
     }
 
-    //Lock cursor (useful)
+    void Awake()
+    {
+        cam = GetComponent<Camera>();
+    }
+
+    void Start()
+    {
+        LockCursor();
+        Cursor.visible = false;
+    }
+
     private void LockCursor()
     {
         Cursor.lockState = CursorLockMode.Locked;
     }
-
-    private void Update()
+    
+    public void Look()
     {
-        if (canLook)
-        {
-            CameraZoom();
-            CameraRotation();
-            HeadBobbing();
-        }
-    }
+        verLook = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
+        horizLook = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
 
-    //Right click to zoom or default
-    private void CameraZoom()
-    {
-        if(Input.GetMouseButtonDown(1))
-        {
-            isZoomed = !isZoomed;
-        }
-
-        if(isZoomed && playerCam.fieldOfView != zoom)
-        {
-            playerCam.fieldOfView = Mathf.Lerp(playerCam.fieldOfView, zoom, Time.deltaTime * smooth);
-        }
-
-        if (!isZoomed && playerCam.fieldOfView != normal)
-        {
-            playerCam.fieldOfView = Mathf.Lerp(playerCam.fieldOfView, normal, Time.deltaTime * smooth);
-        }
-    }
-
-    //Player looks
-    private void CameraRotation()
-    {
-        float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
-        float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
-        xAxisClamp += mouseY;
+        xAxisClamp += verLook;
 
         if (xAxisClamp > 90.0f)
         {
             xAxisClamp = 90.0f;
-            mouseY = 0.0f;
+            verLook = 0.0f;
             ClampXAxisRotationToValue(270.0f);
         }
         else if (xAxisClamp < -80.0f)
         {
             xAxisClamp = -80.0f;
-            mouseY = 0.0f;
+            verLook = 0.0f;
             ClampXAxisRotationToValue(80.0f);
         }
 
-        transform.Rotate(Vector3.left * mouseY);
-        playerBody.Rotate(Vector3.up * mouseX);
+        transform.Rotate(Vector3.left * verLook);
+        playerBody.Rotate(Vector3.up * horizLook);
+        HeadBobbing();
+
+        if (Input.GetMouseButton(2))
+        {
+            cam.fieldOfView = zoomedFOV;
+            isZoomed = true;
+        }
+        else
+        {
+            cam.fieldOfView = normalFOV;
+            isZoomed = false;
+        }
     }
 
-    //Limit the view of the player camera
     private void ClampXAxisRotationToValue(float value)
     {
         Vector3 eulerRotation = transform.eulerAngles;
@@ -110,60 +86,11 @@ public class PlayerLook : MonoBehaviour
         transform.eulerAngles = eulerRotation;
     }
 
-    //Set player camera (Needs to fix!) 
-    public void CrouchSet(bool setVal)
-    {
-        if (setVal == true)
-        {
-            transform.localPosition = new Vector3(transform.localPosition.x, 0.4f, transform.localPosition.z);
-            minHigh = 0.3f;
-            maxHigh = 0.4f;
-            movement = 0.4f;
-
-        }
-        else
-        {
-            transform.localPosition = new Vector3(transform.localPosition.x, 0.6f, transform.localPosition.z);
-            minHigh = 0.6f;
-            maxHigh = 0.7f;
-            movement = 0.6f;
-        }
-    }
-
-    //If player is Idle
-    public void Breathing()
-    {
-        if (highBreath)
-        {
-            movement = Mathf.Lerp(movement, maxHigh, Time.deltaTime * freakness);
-            transform.localPosition = new Vector3(transform.localPosition.x, movement, transform.localPosition.z);
-            if (movement >= maxHigh - 0.01f)
-            {
-                highBreath = !highBreath;
-            }
-        }
-        else
-        {
-            movement = Mathf.Lerp(movement, minHigh, Time.deltaTime * freakness);
-            transform.localPosition = new Vector3(transform.localPosition.x, movement, transform.localPosition.z);
-            if (movement <= minHigh + 0.01f)
-            {
-                highBreath = !highBreath;
-            }
-        }
-
-        if (freakness != 0)
-        {
-            freakness = Mathf.Lerp(freakness, 1f, Time.deltaTime * 0.2f);
-        }
-    }
-
-    //If player is moving
     private void HeadBobbing()
     {
-        float waveslice = 0.0f;
         float horizontal = Input.GetAxis("Horizontal");
         float vertical = Input.GetAxis("Vertical");
+        float waveslice = 0.0f;
 
         Vector3 cSharpConversion = transform.localPosition;
 
@@ -186,14 +113,13 @@ public class PlayerLook : MonoBehaviour
             float totalAxes = Mathf.Abs(horizontal) + Mathf.Abs(vertical);
             totalAxes = Mathf.Clamp(totalAxes, 0.0f, 1.0f);
             translateChange = totalAxes * translateChange;
-            cSharpConversion.y = movement + translateChange;
+            cSharpConversion.y = midPoint + translateChange;
         }
         else
         {
-            cSharpConversion.y = movement;
+            cSharpConversion.y = midPoint;
         }
 
         transform.localPosition = cSharpConversion;
     }
-
 }

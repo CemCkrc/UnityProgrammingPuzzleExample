@@ -4,9 +4,10 @@
 TagManager:
   serializedVersion: 2
   tags:
-  - ClimbUp
-  - HalfClimbUp
   - Terminal
+  - Item
+  - NodePuzzle
+  - Button
   layers:
   - Default
   - TransparentFX
@@ -16,8 +17,8 @@ TagManager:
   - UI
   - 
   - 
-  - PostProcessing
-  - ClimbLayer
+  - Interactable
+  - IgnoreInteract
   - 
   - 
   - 

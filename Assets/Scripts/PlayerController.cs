@@ -3,421 +3,235 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
+[RequireComponent(typeof(CharacterController))]
 public class PlayerController : MonoBehaviour
 {
-    [SerializeField] private Text staminaBar;
-    [SerializeField] private Text healthBar;
+    Vector3 moveDirection;
 
-    public CharacterController charController;
-    private PlayerLook playerL;
-    private PlayerHitCeil playerHit;
+    CharacterController charController;
 
-    [SerializeField] private float normalSpeed;
-    [SerializeField] private float runSpeed;
-    [SerializeField] private float crouchSpeed;
-    private float playerSpeed;
-    
-    [Header("Player Stats")]
-    [SerializeField] private int health;
-    [SerializeField] private float stress;
-    [SerializeField] private float stamina;
-    
-    private float vertInput;
-    private float horizInput;
+    public GameObject handObj;
+    public Vector3 handPos;
+    public Quaternion handRot;
+    public Transform dropPos;
 
-    [Header("Player Status")]
-    #region PlayerStatus
-    public bool isHurting = false;
-    public bool isJumping = false;
-    public bool isCrouching = false;
-    public bool isRunning = false;
-    public bool isClimbing = false;
-    public bool isSliding = false;
-    public bool isAnimating = false;
-    #endregion
+    PlayerLook pLook;
+
+    public Camera playerCam;
+    Transform camPos;
+    [HideInInspector] public AudioSource audioSrc;
+
+    float horizontal, vertical;
+
+    public float playerSpeed = 2f;
+    public float playerWalkSpeed = 1f;
+    public float playerRunSpeed = 2f;
+    public float jumpForce = 2f;
+    public float gravity = 10f;
+
+    public bool usingTerminal;
+    public bool isAnimating;
+    public bool hasObj;
+
+    bool isCrouching = false;
 
 
-    #region Player Camera
-    [Header("Player ParkourAnim")]
-    public Animation ParAnim;
-    public Camera parkourCam;
-
-    [Header("Player RegularAnim")]
-    public Animation RegAnim;
-    public Camera regularCam;
-    #endregion
-
-    [Header("Player Climb Collision")]
-    #region Player Climb Collision
-    public bool hitCeil = false;
-    public bool canClimb = false;
-    public bool canHalfClimbForwad = false;
-    #endregion
-
-
-    private bool isStressed;
-    private bool isAlive;
-    [SerializeField] private bool isExhausted = false;
-
-    private float maxStamina = 100f;
-    private int maxHealth = 3;
-    private float jumpStamina = 10f;
-
-    private float freakTime = 0f;
-
-    private float slideTimer = 0.0f;
-    [SerializeField] private AnimationCurve jumpFallOff;
-    [SerializeField] private float jumpMultiplier;
-
-    //Initialize variables before game starts
     void Awake()
     {
-        playerSpeed = normalSpeed;
-        health = maxHealth;
-        stamina = maxStamina;
-        playerL = GetComponentInChildren<PlayerLook>();
+        camPos = gameObject.transform.Find("CamPos").GetComponent<Transform>();
+        Transform hand = gameObject.transform.Find("HandPos");
+        handPos = hand.localPosition;
+        handRot = hand.localRotation;
+        audioSrc = GetComponent<AudioSource>();
+
+        pLook = GetComponentInChildren<PlayerLook>();
         charController = GetComponent<CharacterController>();
-        playerHit = GetComponentInChildren<PlayerHitCeil>();
+        playerCam = GetComponentInChildren<Camera>();
     }
 
-    //Update every fixed frame-rate frame
-    private void FixedUpdate()
+    void Start()
     {
-        PlayerMovement();
-        InterfaceUpdate();
+        usingTerminal = false;
+        isAnimating = false;
+        hasObj = false;
     }
 
-    //Check player movements
-    private void PlayerMovement()
+    void Update()
     {
-        vertInput = Input.GetAxis("Vertical");
-        horizInput = Input.GetAxis("Horizontal");
-
         if (!isAnimating)
         {
-            Move();
-            Jump();
-            Crouch();
-
-            if (isIdle())
+            pLook.Look();
+            MoveInput();
+            CrouchInput();
+            if (Input.GetMouseButtonDown(1))
             {
-                playerL.breathingTime += Time.deltaTime;
-                if (playerL.breathingTime > 0.3f)
-                {
-                    playerL.Breathing();
-                }
+                DropObject();
             }
         }
+        else if (audioSrc.isPlaying)
+            audioSrc.Stop();
     }
 
-    //If player is moving
-    private void Move()
-    {
-        Vector3 forwardMovement = transform.forward * vertInput;
-        Vector3 rightMovement = transform.right * horizInput;
 
-        //If player is running
-        if (Input.GetButton("Run") && !isExhausted) 
+    void MoveInput()
+    {
+        if (charController.isGrounded)
         {
-            if(isCrouching)
+            horizontal = Input.GetAxis("Horizontal");
+            vertical = Input.GetAxis("Vertical");
+
+            moveDirection = new Vector3(horizontal, 0f, vertical);
+            moveDirection = transform.TransformDirection(moveDirection);
+            playerSpeed = playerWalkSpeed;
+
+            if (Input.GetButton("Jump"))
             {
-                playerSpeed = crouchSpeed + 1f;
+                moveDirection.y = jumpForce;
+            }
+
+            if (Input.GetButton("Run"))
+            {
+                audioSrc.pitch = 1.6f;
+                playerSpeed = playerRunSpeed;
             }
             else
             {
-                if (stamina <= 0)
-                {
-                    playerSpeed = normalSpeed;
-                    isRunning = false;
-                    PlayerExhausted();
-                }
-                if (playerSpeed != runSpeed)
-                {
-                    playerSpeed = runSpeed;
-                    playerL.bobbingSpeed = 0.2f;
-                    isRunning = true;
-                }
-                if(!isIdle())
-                {
-                    stamina -= Time.deltaTime * 5;
-                    slideTimer += Time.deltaTime;
-                }
+                audioSrc.pitch = 1f;
             }
-        }
+            moveDirection = moveDirection * playerSpeed;
 
-        //If player is sliding
-        else if(Input.GetButtonUp("Run"))
-        {
-            slideTimer = 0f;
-            if(!isCrouching)
+            if (moveDirection == Vector3.zero)
             {
-                playerSpeed = normalSpeed;
-                playerL.bobbingSpeed = 0.1f;
+                audioSrc.Stop();
+                audioSrc.loop = false;
             }
             else
             {
-                playerSpeed = crouchSpeed;
-                playerL.bobbingSpeed = 0.1f;
+                if (audioSrc.loop == false)
+                {
+                    audioSrc.loop = true;
+                    audioSrc.Play();
+                }
             }
-            isRunning = false;
         }
-        charController.SimpleMove(Vector3.ClampMagnitude(forwardMovement + rightMovement, 1.0f) * playerSpeed);
-    }
-    
-    #region JumpEvents
 
-    //If player is jumping
-    private void Jump()
-    {
-        if (Input.GetButtonDown("Jump") && charController.isGrounded && !isExhausted)
-        {
-            isJumping = true;
-            StartCoroutine(JumpEvent());
-        }
+        moveDirection.y = moveDirection.y - (gravity * Time.deltaTime);
+        charController.Move(moveDirection * Time.deltaTime);
     }
 
-    //Jump event
-    private IEnumerator JumpEvent()
+    void CrouchInput()
     {
-        if (isCrouching)
-        {
-            if (playerHit.isHitCeil) { yield break; }
-            charController.height = 2.0f;
-            isCrouching = false;
-            isJumping = false;
-            yield break;
-        }
-
-        charController.slopeLimit = 80.0f;
-        float timeInAir = 0.0f;
-
-        if(stamina >= jumpStamina)
-        {
-            stamina -= jumpStamina;
-        }
-        else
-        {
-            stamina = 0f;
-            PlayerExhausted();
-        }
-
-        do
-        {
-            float jumpforce = jumpFallOff.Evaluate(timeInAir);
-            charController.Move(Vector3.up * jumpforce * jumpMultiplier * Time.deltaTime);
-            timeInAir += Time.deltaTime;
-            yield return null;
-
-        }
-        while (!isAnimating && !charController.isGrounded && charController.collisionFlags != CollisionFlags.Above);
-        charController.slopeLimit = 60.0f;
-        isJumping = false;
-    }
-
-    #endregion
-
-    #region CrouchEvent
-
-    private void Crouch()
-    {
-        //If player is crouching
         if (Input.GetButtonDown("Crouch"))
         {
-            //If player is sliding
-            if(slideTimer >= 1.5f)
+            isCrouching = !isCrouching;
+            if (isCrouching)
             {
-                isSliding = true;
-                StartCoroutine(AnimationEvent("Sliding", 1.4f));
-                slideTimer = 0f;
-                playerL.bobbingSpeed = 0.1f;
+                charController.height = 1.5f;
+                camPos.localPosition = new Vector3(camPos.localPosition.x, 0.4f, camPos.localPosition.z);
             }
 
-            if (!isCrouching && charController.isGrounded)
+            else
             {
-                playerL.crouch = isCrouching = true;
-                playerL.CrouchSet(true);
-                playerSpeed = crouchSpeed;
+                charController.height = 2f;
+                camPos.localPosition = new Vector3(camPos.localPosition.x, 0.8f, camPos.localPosition.z);
             }
-            else if (isCrouching && !playerHit.isHitCeil)
-            {
-                playerL.crouch = isCrouching = false;
-                playerL.CrouchSet(false);
-                playerSpeed = normalSpeed;
-            }
-        }
 
-        if (isCrouching && charController.height != 1.2f)
-        {
-            charController.height = Mathf.Lerp(charController.height, 1.2f, Time.deltaTime * 5);
-
-        }
-        else if (charController.height != 2f)
-        {
-            charController.height = Mathf.Lerp(charController.height, 2f, Time.deltaTime * 20);
+            pLook.isCrouched(isCrouching);
         }
     }
 
-    #endregion
-
-
-    //Animation Event (Needs to fix!)
-    public IEnumerator AnimationEvent(string animName, float waitTime)
+    public void HoldObject(GameObject item)
     {
-        regularCam.enabled = false;
-        parkourCam.enabled = true;
-        isJumping = false;
+        if (item != null && !hasObj)
+        {
+            hasObj = true;
+            handObj = item;
+            handObj.GetComponent<Rigidbody>().isKinematic = true;
+            handObj.layer = LayerMask.NameToLayer("IgnoreInteract");
+            handObj.transform.parent = transform;
+            handObj.transform.localPosition = handPos;
+            handObj.transform.localRotation = handRot;
+        }
+    }
+
+    public void DropObject()
+    {
+        if (hasObj)
+        {
+            handObj.transform.position = dropPos.position;
+            handObj.transform.parent = null;
+            handObj.layer = LayerMask.NameToLayer("Interactable");
+            handObj.GetComponent<Rigidbody>().isKinematic = false;
+            hasObj = false;
+        }
+    }
+
+    public void SetPlayerPos(Transform playerPos)
+    {
+        moveDirection.Set(0f, 0f, 0f);
+        audioSrc.loop = false;
         isAnimating = true;
-        regularCam.depth = 0;
-        parkourCam.depth = 1;
-        playerL.canLook = false;
-        ParAnim.Play(animName);
-        yield return new WaitForSeconds(waitTime);
-        Vector3 climbVector = parkourCam.transform.position;
-        climbVector.y -= 0.5f;
-        Quaternion rotationVec = parkourCam.transform.localRotation;
-        rotationVec.y = 0f;
-        rotationVec.z = 0f;
-        regularCam.transform.localRotation = rotationVec;
-        transform.position = climbVector;
-        playerL.canLook = true;
-        regularCam.enabled = true;
-        parkourCam.enabled = false;
-        regularCam.depth = 1;
-        parkourCam.depth = 0;
-        parkourCam.transform.localPosition = Vector3.zero;
-        isClimbing = false;
-        isAnimating = false;
-        isJumping = false;
-        isRunning = false;
-        isSliding = false;
-        Vector3 temp = regularCam.transform.localPosition;
-        parkourCam.transform.parent.localPosition = temp;
-        slideTimer = 0f;
-
+        if (pLook.isZoomed == true)
+            playerCam.fieldOfView = 60f;
+        StartCoroutine(SetPos(playerPos));
     }
 
-    //Terminal Event
-    public IEnumerator TerminalEvent(Transform pos,bool isExiting)
+    public void StartTerminal()
     {
-        parkourCam.enabled = true;
-        regularCam.enabled = false;
-        if (!isExiting)
-        {
-            regularCam.depth = 0;
-            parkourCam.depth = 1;
-        }
+        usingTerminal = true;
+    }
+
+    public void ExitTerminal()
+    {
+        usingTerminal = false;
+        StartCoroutine(SetPos());
+    }
+
+    public void SetCharController()
+    {
+        charController.enabled = !charController.enabled;
+    }
+
+    public Quaternion SetCamera()
+    {
+        return camPos.localRotation;
+    }
+
+    public IEnumerator SetPos()
+    {
+        Transform pos = camPos;
+        StartCoroutine(SetPos(pos));
+        yield break;
+    }
+
+    public IEnumerator SetPos(Transform posDestination)
+    {
+
+        Vector3 setPos = posDestination.position;
+        Quaternion setRot = posDestination.rotation;
+
+        float multiplier = 6f;
+        float time = 0f;
         do
         {
-            parkourCam.transform.position = Vector3.Lerp(parkourCam.transform.position, pos.position, Time.deltaTime * 4);
-            parkourCam.transform.rotation = Quaternion.Slerp(parkourCam.transform.rotation, pos.rotation, Time.deltaTime * 4);
-            if(isExiting)
-            {
-                freakTime += Time.deltaTime;
-                if (freakTime >= 1f)
-                {
-                    freakTime = 0f;
-                    break;
-                }
-            }
-                yield return null;
+            time += Time.deltaTime;
+            playerCam.transform.position = Vector3.Slerp(playerCam.transform.position, setPos, Time.deltaTime * multiplier);
+            playerCam.transform.rotation = Quaternion.Slerp(playerCam.transform.rotation, setRot, Time.deltaTime * multiplier * 2);
+            if (time > 1.2f)
+                break;
+            yield return null;
+        } while (playerCam.transform.position.x != posDestination.position.x
+        && playerCam.transform.position.y != posDestination.position.y
+        && playerCam.transform.position.z != posDestination.position.z);
 
-        } while (isAnimating && parkourCam.transform.position != pos.position && parkourCam.transform.eulerAngles != pos.eulerAngles);
-
-        if (isExiting)
+        if (posDestination == camPos)
         {
+            usingTerminal = false;
             isAnimating = false;
-            regularCam.depth = 1;
-            parkourCam.depth = 0;
-            Vector3 temp = regularCam.transform.localPosition;
-            temp.y -= 0.7f;
-            parkourCam.transform.localPosition = temp;
-            regularCam.enabled = true;
-            parkourCam.enabled = false;
         }
 
-        yield return new WaitForSeconds(1.5f);
+
+        yield break;
     }
 
-    //Idle control
-    private bool isIdle()
-    {
-        if (charController.velocity.magnitude == 0.0f)
-        {
-            if(!isExhausted && stamina <= maxStamina)
-            {
-                StaminaUpdate();
-            }
-            return true;
-        }
-
-        else
-        {
-            playerL.breathingTime = 0f;
-            return false;
-        }
-    }
-    
-    //Interface Update
-    private void InterfaceUpdate()
-    {
-        if(isHurting)
-        {
-            health -= 1;
-            isHurting = false;
-        }
-        staminaBar.text = (Mathf.RoundToInt(stamina)).ToString();
-        healthBar.text = (Mathf.RoundToInt(health)).ToString();
-    }
-
-    //Stamina Update
-    private void StaminaUpdate()
-    {
-        if(isCrouching)
-        {
-            stamina += Time.deltaTime * 4;
-        }
-        else
-        {
-            stamina += Time.deltaTime * 2;
-        }
-    }
-
-    //Check if player is exhausted
-    private void PlayerExhausted()
-    {
-        if (stamina <= 0.0f)
-        {
-            isExhausted = true;
-            StartCoroutine(ExhaustedTime());
-        }
-    }
-
-    //Exhausted Time
-    private IEnumerator ExhaustedTime()
-    {
-        stamina = 0.0f;
-
-        playerL.freakness = 2.25f;
-        yield return new WaitForSeconds(5.0f);
-        isExhausted = false;
-    }
-
-    //If player interacts terminal
-    public void SetTerminal(bool isTextDisabled)
-    {
-        if(isTextDisabled == false)
-        {
-            staminaBar.enabled = false;
-            healthBar.enabled = false;
-            isAnimating = true;
-            playerL.canLook = false;
-        }
-        else
-        {
-            playerL.canLook = true;
-            staminaBar.enabled = true;
-            healthBar.enabled = true;
-        }
-
-    }
 }

@@ -1,85 +1,77 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
-public class PlayerRaycast : MonoBehaviour {
+public class PlayerRaycast : MonoBehaviour
+{
+    public float rayLength;
 
-    PlayerController playerC;
-    TerminalInteraction terminal;
+    
+    PlayerController pC;
 
-    [SerializeField] Camera playerCam;
-    [SerializeField] private float rayLength;
-
-    //Initialize variables before game starts
     void Awake()
     {
-        playerC = GetComponent<PlayerController>();
-        terminal = null;
+        pC = GetComponentInParent<PlayerController>();
     }
 
-    //Check for if camera hits something (useful)
+    void Start()
+    {
+        rayLength = 2f;
+    }
+
     void Update()
     {
-        RaycastHit hit;
-        Ray ray = playerCam.ScreenPointToRay(Input.mousePosition);
-        if (Physics.Raycast(ray, out hit, rayLength))
-        {
-            if(hit.collider)
-            {
-                playerC.isRunning = false;
-            }
+        if (pC.isAnimating)
+            return;
 
-            if(hit.collider.isTrigger)
+        if (Time.timeScale == 0)
+            return;
+
+        RaycastHit hit;
+        Ray ray = Camera.main.ScreenPointToRay(Input.mousePosition);
+        if (Physics.Raycast(ray, out hit, rayLength, LayerMask.GetMask("Interactable")))
+        {
+            if (Input.GetMouseButtonDown(0))
             {
-                //using tags
-                if (hit.collider.tag == "ClimbUp")
+                if (hit.collider.tag == "Item")
                 {
-                    playerC.canClimb = true;
-                    if(!playerC.charController.isGrounded && !playerC.isAnimating)
+                        pC.HoldObject(hit.collider.gameObject);
+                }
+                
+                else if (hit.collider.tag == "Terminal")
+                {
+                    if(!pC.isAnimating)
                     {
-                        playerC.isAnimating = true;
-                        playerC.isJumping = false;
-                        StartCoroutine(playerC.AnimationEvent("ClimbUp", 2.0f));
+                        pC.HoldObject(hit.collider.gameObject);
                     }
                 }
-                if (hit.collider.tag == "HalfClimbUp")
+
+                else if(hit.collider.tag == "Button")
                 {
-                    playerC.canHalfClimbForwad = true;
-                    if (playerC.isJumping)
+                    hit.collider.GetComponent<ButtonController>().CheckPuzzle();
+                }
+            }
+            if(Input.GetMouseButtonDown(1))
+            {
+                if (hit.collider.tag == "Terminal")
+                {
+                    if (!pC.isAnimating)
                     {
-                        StartCoroutine(playerC.AnimationEvent("HalfClimbUp", 1.8f));
+                        hit.collider.gameObject.GetComponent<TerminalController>().StartTer();
+                        pC.SetPlayerPos(hit.collider.gameObject.GetComponent<TerminalController>().terminalPos);
+                        pC.StartTerminal();
                     }
                 }
-                if(hit.collider.tag == "Terminal")
+
+                else if (hit.collider.tag == "NodePuzzle")
                 {
-                    if(Input.GetButtonDown("Interaction"))
+                    if (!pC.isAnimating)
                     {
-                        terminal = hit.collider.GetComponent<TerminalInteraction>();
-                        if (terminal.isActiveted == false && !playerC.isAnimating)
-                        {
-                            Transform pos = hit.collider.transform.parent.Find("TerminalZone");
-                            StartCoroutine(playerC.TerminalEvent(pos,false));
-                            terminal.isActiveted = true;
-                            playerC.SetTerminal(false);
-                        }
-                    }
-                    if(terminal != null && terminal.wantExit)
-                    {
-                        terminal.wantExit = false;
-                        terminal.Exit();
-                        StartCoroutine(playerC.TerminalEvent(playerC.regularCam.transform, true));
-                        playerC.SetTerminal(true);
+                        hit.collider.gameObject.GetComponent<NodePuzzle>().SetController();
                     }
                 }
             }
-        }
-        else if(playerC.canClimb == true)
-        {
-            playerC.canClimb = false;
-        }
-        else if (playerC.canHalfClimbForwad == true)
-        {
-            playerC.canHalfClimbForwad = false;
         }
     }
 }
