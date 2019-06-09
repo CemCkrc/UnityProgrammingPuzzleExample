@@ -14,18 +14,15 @@ It's a basic Unity project example for learning. Has lots of bugs, non optimised
 
 ###### Player Controls
 - 'W','A','S','D' keys for move player
-- 'F' key interats about objects
 - 'C' key for crouch
 - 'Shift' key for sprint
 - 'Space' key for Jump
-- 'Shift' && 'C' for slide
-- 'Right' click to zoom
+- 'Right' click to interact
 
 ###### Terminal Controls
 - 'help' command for terminal help
-- 'list' command for list connected objects
+- 'connect' command for connect camera
 - 'restart' command for restart terminal screen
-- 'logs' command for return logs to terminal screen
 - 'exit' command for exit terminal
 - 'clear' command for clear terminal screen
 
