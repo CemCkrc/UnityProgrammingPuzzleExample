@@ -17,7 +17,7 @@ It's a basic Unity project example for learning. Has lots of bugs, non optimised
 - 'C' key for crouch
 - 'Shift' key for sprint
 - 'Space' key for Jump
-- 'Right' click to interact
+- 'Right' or 'left' click to interact
 
 ###### Terminal Controls
 - 'help' command for terminal help
