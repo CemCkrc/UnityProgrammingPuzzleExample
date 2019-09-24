@@ -1,11 +1,50 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class NodePuzzle : MonoBehaviour
 {
-    public int row, column;
+    public Material[,] nodes { get; private set; }
+
+    public Material selected, correct, incorrect;
+
+    public int puzzleSize;
+
+    public Transform startPos;
+
+    public float gapSize;
+
+    public GameObject puzzlePiece;
+
+    private void Awake()
+    {
+        nodes = new Material[puzzleSize, puzzleSize];
+
+        for (int y = 0; y < puzzleSize; y++)
+        {
+            for (int x = 0; x < puzzleSize; x++)
+            {
+                new Vector3(startPos.position.x + (x * gapSize), 
+                    startPos.position.y + (y * gapSize), 
+                    startPos.position.z);
+
+                GameObject clone = Instantiate(puzzlePiece, 
+                    startPos.position, startPos.rotation, this.transform);
+
+                Renderer cloneRenderer = clone.GetComponent<Renderer>();
+                if (Random.Range(0, 4) == 0)
+                    cloneRenderer.material = correct;
+                else
+                    cloneRenderer.material = incorrect;
+
+                nodes[x, y] = clone.GetComponent<Renderer>().material;
+            }
+        }
+
+        nodes[Random.Range(0, puzzleSize), Random.Range(0, puzzleSize)] = correct;
+    }
+    
+    /*public int row, column;
     public Transform puzzlePos;
     GameObject[,] nodes;
     
@@ -23,8 +62,9 @@ public class NodePuzzle : MonoBehaviour
     }
     
 
-    void StartController(NodeController nodeController)
+    IEnumerator StartController(NodeController nodeController)
     {
+        yield return new WaitForSeconds(2f);
         nodeController.puzzle = this;
         nodeController.isWorking = true;
     }
@@ -49,7 +89,7 @@ public class NodePuzzle : MonoBehaviour
         {
             pC.isAnimating = true;
             StartCoroutine(pC.SetPos(puzzlePos));
-            StartController(nodeController);
+            StartCoroutine(StartController(nodeController));
         }
     }
 
@@ -106,5 +146,5 @@ public class NodePuzzle : MonoBehaviour
     public void ResetNodes()
     {
         FillNodes();
-    }
+    }*/
 }

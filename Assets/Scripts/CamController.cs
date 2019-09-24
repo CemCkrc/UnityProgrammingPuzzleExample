@@ -2,90 +2,201 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CamController : MonoBehaviour
+public class CamController : Interactable
 {
-    AudioSource camAudio;
-    Rigidbody rb;
-    Camera cam;
-
-    public bool isWorking;
-
-    public float speed;
+    #region Values
+    Camera cam, playerCam;
+    RenderTexture targetText;
+    
     float horiz, vert;
-
     Vector3 turnDirection;
 
-    RenderTexture textureHolder;
-    
+    Rigidbody rb;
+
+    [SerializeField] float speed;
+    [SerializeField] float rayLength;
+
+    bool connected = false;
+    #endregion
 
     private void Awake()
     {
-        cam = GetComponentInChildren<Camera>();
-        camAudio = GetComponent<AudioSource>();
         rb = GetComponent<Rigidbody>();
+        cam = GetComponentInChildren<Camera>();
     }
 
     private void Start()
     {
-        GetComponentInChildren<AudioListener>().enabled = false;
+        playerCam = Camera.main;
 
-        textureHolder = cam.targetTexture;
-        isWorking = false;
+        targetText = cam.targetTexture;
 
-        TerminalController.AddFunction("Connect", SetController);
-        TerminalController.AddFunction("ResetPos", ResetRot);
+        cam.depth = -1;
+
+        Functions.instance.AddFunction("connectCam", ConnectCam);
+        Functions.instance.AddFunction("resetCamPos", ResetCam);
+    }
+
+    public override void Interact()
+    {
+        ConnectCam(null);
+    }
+
+    public int ConnectCam(dynamic empty)
+    {
+        playerCam.depth = -1;
+        cam.depth = 0;
+
+        isWorking = true;
+        cam.targetTexture = null;
+
+        TerminalController.camChanged = true;
+        return 0;
+    }
+
+    public int ResetCam(dynamic empty)
+    {
+        this.gameObject.transform.eulerAngles = new Vector3(0f, transform.eulerAngles.y, 0f);
+        return 0;
     }
 
     private void FixedUpdate()
     {
-        if(isWorking)
-        {
-            if(Input.GetMouseButtonDown(2))
-            {
-                SetController();
-            }
+        if (!isWorking)
+            return;
 
-            if(gameObject.transform.rotation.eulerAngles.x > 45 && gameObject.transform.rotation.eulerAngles.x < 340)
-            {
-                return;
-            }
+        if (Input.GetMouseButtonDown(0) && !connected)
+            CheckOtherCam();
+        else if (Input.GetMouseButtonDown(1))
+            CamExit();
 
-            horiz = Input.GetAxis("Horizontal");
-            vert = Input.GetAxis("Vertical");
-            
-            turnDirection = new Vector3(0f, horiz, 0f);
-             
-            Quaternion deltaRotation = Quaternion.Euler(turnDirection * speed * Time.deltaTime);
+        if (gameObject.transform.rotation.eulerAngles.x > 45 &&
+            gameObject.transform.rotation.eulerAngles.x < 340)
+            return;
 
-            rb.MovePosition(transform.position + transform.right * vert * Time.deltaTime);
-            rb.MoveRotation(rb.rotation * deltaRotation);
-        }
+        horiz = Input.GetAxis("Horizontal");
+        vert = Input.GetAxis("Vertical");
+
+        turnDirection = new Vector3(0f, horiz, 0f);
+
+        Quaternion deltaRotation = Quaternion.Euler(turnDirection * speed * Time.deltaTime);
+
+        rb.MovePosition(transform.position + transform.right * vert * Time.deltaTime);
+        rb.MoveRotation(rb.rotation * deltaRotation);
     }
-
-    public void SetController()
+    
+    private void CamExit()
     {
-        isWorking = !isWorking;
+        cam.depth = -1;
+        playerCam.depth = 0;
+        cam.targetTexture = targetText;
 
-        if (isWorking)
-        {
-            GetComponentInChildren<AudioListener>().enabled = true;
-            cam.targetTexture = null;
-            GameObject.FindGameObjectWithTag("Player").GetComponentInChildren<AudioListener>().enabled = false;
-            GameObject.FindGameObjectWithTag("Player").GetComponentInChildren<Camera>().depth = -1;
-            GameObject.FindGameObjectWithTag("Terminal").GetComponent<TerminalController>().isWorking = false;
-        }
-        else
-        {
-            GetComponentInChildren<AudioListener>().enabled = false;
-            cam.targetTexture = textureHolder;
-            GameObject.FindGameObjectWithTag("Player").GetComponentInChildren<AudioListener>().enabled = true;
-            GameObject.FindGameObjectWithTag("Player").GetComponentInChildren<Camera>().depth = 1;
-            GameObject.FindGameObjectWithTag("Terminal").GetComponent<TerminalController>().isWorking = true;
-        }
+        TerminalController.camChanged = false;
+        connected = false;
+        isWorking = false;
     }
 
-    public void ResetRot()
+    void CheckOtherCam()
     {
-        this.gameObject.transform.eulerAngles = new Vector3(0f, transform.eulerAngles.y, 0f);
+        RaycastHit hit;
+        Ray ray = cam.ScreenPointToRay(Input.mousePosition);
+        if (Physics.Raycast(ray, out hit, rayLength, LayerMask.GetMask("Interactable")))
+        {
+            if(hit.collider.tag == "Camera")
+            {
+                cam.depth = -1;
+                cam.targetTexture = targetText;
+                connected = true;
+                hit.collider.GetComponent<Interactable>().Interact(playerCam.transform);
+            }
+        }
     }
+
+    /* AudioSource camAudio;
+     Rigidbody rb;
+     Camera cam;
+
+     public bool isWorking;
+
+     public float speed;
+     float horiz, vert;
+
+     Vector3 turnDirection;
+
+     RenderTexture textureHolder;
+
+
+     private void Awake()
+     {
+         cam = GetComponentInChildren<Camera>();
+         camAudio = GetComponent<AudioSource>();
+         rb = GetComponent<Rigidbody>();
+     }
+
+     private void Start()
+     {
+         GetComponentInChildren<AudioListener>().enabled = false;
+
+         textureHolder = cam.targetTexture;
+         isWorking = false;
+
+         TerminalController.AddFunction("Connect", SetController);
+         TerminalController.AddFunction("ResetPos", ResetRot);
+     }
+
+     private void FixedUpdate()
+     {
+         if(isWorking)
+         {
+             if(Input.GetMouseButtonDown(2))
+             {
+                 SetController();
+             }
+
+             if(gameObject.transform.rotation.eulerAngles.x > 45 && gameObject.transform.rotation.eulerAngles.x < 340)
+             {
+                 return;
+             }
+
+             horiz = Input.GetAxis("Horizontal");
+             vert = Input.GetAxis("Vertical");
+
+             turnDirection = new Vector3(0f, horiz, 0f);
+
+             Quaternion deltaRotation = Quaternion.Euler(turnDirection * speed * Time.deltaTime);
+
+             rb.MovePosition(transform.position + transform.right * vert * Time.deltaTime);
+             rb.MoveRotation(rb.rotation * deltaRotation);
+         }
+     }
+
+     public void SetController()
+     {
+         GameObject player = GameObject.FindGameObjectWithTag("Player");
+         GameObject terminal = GameObject.FindGameObjectWithTag("Terminal");
+
+         isWorking = !isWorking;
+
+         if (isWorking)
+         {
+             GetComponentInChildren<AudioListener>().enabled = true;
+             cam.targetTexture = null;
+             player.GetComponentInChildren<AudioListener>().enabled = false;
+             player.GetComponentInChildren<Camera>().depth = -1;
+             terminal.GetComponent<TerminalController>().isWorking = false;
+         }
+         else
+         {
+             GetComponentInChildren<AudioListener>().enabled = false;
+             cam.targetTexture = textureHolder;
+             player.GetComponentInChildren<AudioListener>().enabled = true;
+             player.GetComponentInChildren<Camera>().depth = 1;
+             terminal.GetComponent<TerminalController>().isWorking = true;
+         }
+     }
+
+     public void ResetRot()
+     {
+         this.gameObject.transform.eulerAngles = new Vector3(0f, transform.eulerAngles.y, 0f);
+     }*/
 }

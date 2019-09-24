@@ -991,7 +991,6 @@ GameObject:
   - component: {fileID: 8296172668945038259}
   - component: {fileID: 8495265862937104283}
   - component: {fileID: 7793385009198985408}
-  - component: {fileID: 7793385009198985412}
   m_Layer: 8
   m_Name: terminal
   m_TagString: Terminal
@@ -1060,11 +1059,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6123a0dfa5c6e0549a89108ab5d0e8c4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  terminalPos: {fileID: 0}
-  mainScreen: {fileID: 1679924821}
-  audioClips:
-  - {fileID: 8300000, guid: 9ccc46ee4a895e741a4786b94c1e9ea3, type: 3}
-  - {fileID: 8300000, guid: 0fd60156d8d4592479e1c6d27ce3080a, type: 3}
+  camPos: {fileID: 26198260}
 --- !u!82 &7793385009198985408
 AudioSource:
   m_ObjectHideFlags: 0
@@ -1161,22 +1156,6 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
---- !u!111 &7793385009198985412
-Animation:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2235552646862539535}
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Animation: {fileID: 7400000, guid: ce9ab4f2e9cc24e43935e0186ee0fec7, type: 2}
-  m_Animations:
-  - {fileID: 7400000, guid: ce9ab4f2e9cc24e43935e0186ee0fec7, type: 2}
-  m_WrapMode: 0
-  m_PlayAutomatically: 1
-  m_AnimatePhysics: 0
-  m_CullingType: 0
 --- !u!1 &3246516441680982563
 GameObject:
   m_ObjectHideFlags: 0

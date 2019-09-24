@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class ButtonController : MonoBehaviour
 {
-    public NodePuzzle nodes;
+    /*public NodePuzzle nodes;
     public RandomNodes puzzle;
 
     public Animation anim;
@@ -22,5 +22,5 @@ public class ButtonController : MonoBehaviour
 
         anim.Play();
 
-    }
+    }*/
 }

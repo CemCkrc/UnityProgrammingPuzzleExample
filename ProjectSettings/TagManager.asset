@@ -8,6 +8,7 @@ TagManager:
   - Item
   - NodePuzzle
   - Button
+  - Camera
   layers:
   - Default
   - TransparentFX
