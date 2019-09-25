@@ -24,12 +24,14 @@ public class NodePuzzle : MonoBehaviour
         {
             for (int x = 0; x < puzzleSize; x++)
             {
-                new Vector3(startPos.position.x + (x * gapSize), 
+                Vector3 pos = new Vector3(startPos.position.x + (x * gapSize), 
                     startPos.position.y + (y * gapSize), 
                     startPos.position.z);
 
-                GameObject clone = Instantiate(puzzlePiece, 
-                    startPos.position, startPos.rotation, this.transform);
+                GameObject clone = Instantiate(puzzlePiece,
+                    pos, startPos.rotation, null);
+
+                clone.transform.parent = this.transform;
 
                 Renderer cloneRenderer = clone.GetComponent<Renderer>();
                 if (Random.Range(0, 4) == 0)
@@ -37,11 +39,11 @@ public class NodePuzzle : MonoBehaviour
                 else
                     cloneRenderer.material = incorrect;
 
-                nodes[x, y] = clone.GetComponent<Renderer>().material;
+                nodes[x, y] = clone.GetComponent<Renderer>().sharedMaterial;
             }
         }
 
-        nodes[Random.Range(0, puzzleSize), Random.Range(0, puzzleSize)] = correct;
+        //nodes[Random.Range(0, puzzleSize), Random.Range(0, puzzleSize)] = correct;
     }
     
     /*public int row, column;

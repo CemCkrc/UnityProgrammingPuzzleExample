@@ -49,7 +49,7 @@ public class DoorController : MonoBehaviour
                 if(door.isLocked)
                 {
                     TerminalController.ShowMainScreen("Door is locked");
-                    return false;
+                    return true;
                 }
                 door.gameObject.GetComponent<Animator>().SetBool("OpenDoor",OC);
                 return true;

@@ -16,7 +16,7 @@ public class TerminalController : Interactable
     TMP_InputField terInput;
     [SerializeField] GameObject startScreen;
 
-    public static bool camChanged;
+    public static bool controllerChange;
     #endregion
 
     private void Awake()
@@ -33,7 +33,7 @@ public class TerminalController : Interactable
     {
         AddDefaultFunctions();
         anim.SetBool("IsOpened", false);
-        camChanged = false;
+        controllerChange = false;
 
         Functions.instance.ExecuteFunction("HELP", null);
     }
@@ -65,7 +65,7 @@ public class TerminalController : Interactable
         if (!isWorking)
             return;
         
-        if (!terInput.isFocused && !camChanged)
+        if (!terInput.isFocused && !controllerChange)
             terInput.ActivateInputField();
 
         TerminalUpdate();
@@ -82,7 +82,7 @@ public class TerminalController : Interactable
 
     void TerSubmit()
     {
-        if(camChanged)
+        if(controllerChange)
         {
             terInput.DeactivateInputField();
             return;
@@ -120,7 +120,7 @@ public class TerminalController : Interactable
         ClearMainScreen();
 
         isWorking = false;
-        camChanged = false;
+        controllerChange = false;
         TerAnim();
     }
 

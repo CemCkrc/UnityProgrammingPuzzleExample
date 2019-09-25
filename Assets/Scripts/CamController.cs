@@ -5,34 +5,21 @@ using UnityEngine;
 public class CamController : Interactable
 {
     #region Values
-    Camera cam, playerCam;
-    RenderTexture targetText;
-    
     float horiz, vert;
     Vector3 turnDirection;
 
     Rigidbody rb;
 
     [SerializeField] float speed;
-    [SerializeField] float rayLength;
-
-    bool connected = false;
     #endregion
 
     private void Awake()
     {
         rb = GetComponent<Rigidbody>();
-        cam = GetComponentInChildren<Camera>();
     }
 
     private void Start()
     {
-        playerCam = Camera.main;
-
-        targetText = cam.targetTexture;
-
-        cam.depth = -1;
-
         Functions.instance.AddFunction("connectCam", ConnectCam);
         Functions.instance.AddFunction("resetCamPos", ResetCam);
     }
@@ -44,13 +31,8 @@ public class CamController : Interactable
 
     public int ConnectCam(dynamic empty)
     {
-        playerCam.depth = -1;
-        cam.depth = 0;
-
+        TerminalController.controllerChange = true;
         isWorking = true;
-        cam.targetTexture = null;
-
-        TerminalController.camChanged = true;
         return 0;
     }
 
@@ -65,8 +47,6 @@ public class CamController : Interactable
         if (!isWorking)
             return;
 
-        if (Input.GetMouseButtonDown(0) && !connected)
-            CheckOtherCam();
         else if (Input.GetMouseButtonDown(1))
             CamExit();
 
@@ -84,33 +64,13 @@ public class CamController : Interactable
         rb.MovePosition(transform.position + transform.right * vert * Time.deltaTime);
         rb.MoveRotation(rb.rotation * deltaRotation);
     }
-    
+
     private void CamExit()
     {
-        cam.depth = -1;
-        playerCam.depth = 0;
-        cam.targetTexture = targetText;
-
-        TerminalController.camChanged = false;
-        connected = false;
+        TerminalController.controllerChange = false;
         isWorking = false;
     }
 
-    void CheckOtherCam()
-    {
-        RaycastHit hit;
-        Ray ray = cam.ScreenPointToRay(Input.mousePosition);
-        if (Physics.Raycast(ray, out hit, rayLength, LayerMask.GetMask("Interactable")))
-        {
-            if(hit.collider.tag == "Camera")
-            {
-                cam.depth = -1;
-                cam.targetTexture = targetText;
-                connected = true;
-                hit.collider.GetComponent<Interactable>().Interact(playerCam.transform);
-            }
-        }
-    }
 
     /* AudioSource camAudio;
      Rigidbody rb;

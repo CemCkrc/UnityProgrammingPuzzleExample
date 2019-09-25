@@ -59,7 +59,16 @@ public class PlayerLook : MonoBehaviour
         RaycastHit hit;
         Ray ray = playerCam.ScreenPointToRay(Input.mousePosition);
         if (Physics.Raycast(ray, out hit, rayLength, LayerMask.GetMask("Interactable")))
-            return hit.collider.gameObject;
+        {
+            Interactable interactable = hit.collider.gameObject.GetComponent<Interactable>();
+            if (interactable)
+            {
+                if (interactable.canTake)
+                    return hit.collider.gameObject;
+            }
+            else
+                return hit.collider.gameObject;
+        }
         return null;
     }
 
@@ -67,7 +76,6 @@ public class PlayerLook : MonoBehaviour
     {
         if (!isWorking)
         {
-            playerCam.depth = 1;
             transform.SetPositionAndRotation(camPos.transform.position, camPos.transform.rotation);
             isWorking = true;
             return false;

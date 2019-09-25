@@ -6,7 +6,9 @@ public class Interactable : MonoBehaviour
 {
     public Transform camPos;
 
-    protected bool isWorking = false;
+    public bool canTake = true;
+
+    public bool isWorking = false;
     
     public virtual void Interact() => isWorking = true;
 
