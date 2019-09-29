@@ -10,7 +10,7 @@ public class Functions : MonoBehaviour
     private void Awake() => instance =  instance ? instance : this;
     
     private Dictionary<string, Func<dynamic, int>> functions = new Dictionary<string, Func<dynamic, int>>();
-
+    
     public void AddFunction(string funcName, Func<dynamic, int> function)
     {
         funcName = funcName.ToUpperInvariant();

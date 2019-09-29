@@ -5,8 +5,6 @@ using UnityEngine;
 public class Door : MonoBehaviour
 {
     public string doorName;
-
+    
     public bool isLocked;
-
-    //TODO: Add lock system
 }

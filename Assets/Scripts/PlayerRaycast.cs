@@ -12,11 +12,9 @@ public class PlayerRaycast : MonoBehaviour
     protected bool isWorking = true;
 
     Camera playerCam;
-
     #endregion
 
     private void Awake() => playerCam = GetComponent<Camera>();
-
 
     public GameObject Take()
     {

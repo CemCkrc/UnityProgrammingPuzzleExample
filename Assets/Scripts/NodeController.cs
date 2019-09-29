@@ -7,8 +7,10 @@ public class NodeController : Interactable
     public Door door;
 
     public NodePuzzle puzzle;
-
+    
     public float gapSize;
+
+    public Vector3 nodeSize;
 
     Transform startPos;
 
@@ -39,7 +41,7 @@ public class NodeController : Interactable
     }
 
 
-    private void FixedUpdate()
+    private void Update()
     {
         if (isWorking)
         {
@@ -60,6 +62,12 @@ public class NodeController : Interactable
 
     public override void Interact(Transform playerCam)
     {
+        StartCoroutine(WaitMouse(playerCam));
+    }
+    
+    IEnumerator WaitMouse(Transform playerCam)
+    {
+        yield return new WaitForFixedUpdate();
         base.Interact(playerCam);
     }
 
@@ -82,7 +90,7 @@ public class NodeController : Interactable
 
     int ConnectPuzzle(dynamic empty)
     {
-        Interact(Camera.main.transform);
+        base.Interact(Camera.main.transform);
         TerminalController.controllerChange = true;
         return 0;
     }
@@ -123,7 +131,11 @@ public class NodeController : Interactable
                     startPos.position.z);
 
                 GameObject clone = Instantiate(puzzle.puzzlePiece,
-                    pos, startPos.rotation, this.transform);
+                    pos, startPos.rotation, null);
+
+                clone.transform.parent = this.transform;
+
+                clone.transform.localScale = nodeSize;
 
                 Renderer cloneRenderer = clone.GetComponent<Renderer>();
                 cloneRenderer.sharedMaterial = puzzle.incorrect;
@@ -167,51 +179,9 @@ public class NodeController : Interactable
                 displayPuzzle[x, y].GetComponent<Renderer>().sharedMaterial = puzzle.incorrect;
 
         displayPuzzle[0, 0].GetComponent<Renderer>().sharedMaterial = puzzle.selected;
+        prevMat = puzzle.incorrect;
 
         posX = 0;
         posY = 0;
     }
-
-    /*public NodePuzzle puzzle;
-
-    public bool isWorking = false;
-
-    private void Update()
-    {
-        if(isWorking)
-        {
-            if(Input.GetMouseButtonDown(1))
-            {
-                puzzle.SetController();
-                return;
-            }
-
-            if(Input.GetKeyDown(KeyCode.W))
-            {
-                puzzle.MovePointer(-1,0);
-            }
-            else if (Input.GetKeyDown(KeyCode.A))
-            {
-                puzzle.MovePointer(0, -1);
-            }
-            else if(Input.GetKeyDown(KeyCode.S))
-            {
-                puzzle.MovePointer(1, 0);
-            }
-            else if(Input.GetKeyDown(KeyCode.D))
-            {
-                puzzle.MovePointer(0, 1);
-            }
-
-            if(Input.GetKeyDown(KeyCode.Space))
-            {
-                puzzle.AddPoint();
-            }
-            if(Input.GetKeyDown(KeyCode.R))
-            {
-                puzzle.ResetNodes();
-            }
-        }
-    }
-    */
 }

@@ -2,12 +2,14 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+//Decrease time using deltaTime
+//Restart scene if time is less than zero
 public class TimeCounter : MonoBehaviour
 {
     TextMesh mesh;
     Transform player;
 
-    float timeLeft = 200;
+    private float timeLeft = 200;
 
     private void Awake() => mesh = GetComponentInChildren<TextMesh>();
 

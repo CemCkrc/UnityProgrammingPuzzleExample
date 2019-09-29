@@ -5,8 +5,15 @@ using UnityEngine.SceneManagement;
 
 public class GameEnd : MonoBehaviour
 {
+    //Restart Game
     public static void End()
     {
-        SceneManager.LoadScene(0, LoadSceneMode.Single);
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+    }
+    
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.tag == "Player")
+            End();
     }
 }
