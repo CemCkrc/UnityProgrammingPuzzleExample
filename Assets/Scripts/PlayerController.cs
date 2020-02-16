@@ -59,8 +59,6 @@ public class PlayerController : MonoBehaviour
 
         moveDirection.y = moveDirection.y - (gravity * Time.deltaTime);
         charController.Move(moveDirection * Time.deltaTime);
-
-        charController.Move(moveDirection);
     }
 
     //Check for crouch
