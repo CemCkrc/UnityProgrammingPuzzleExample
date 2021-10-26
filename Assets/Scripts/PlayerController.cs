@@ -52,7 +52,7 @@ public class PlayerController : MonoBehaviour
             horiz = Input.GetAxis("Horizontal");
             vert = Input.GetAxis("Vertical");
 
-            moveDirection = new Vector3(horiz, 0f, vert) * Time.deltaTime * playerSpeed;
+            moveDirection = new Vector3(horiz, 0f, vert) * playerSpeed;
             moveDirection = transform.TransformDirection(moveDirection);
 
         }
