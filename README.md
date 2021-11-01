@@ -7,6 +7,7 @@
 
 ## Gameplay
 The game idea is using computer and camera to solve puzzle. The puzzle has buttons. Under 200 seconds, player must solve the puzzle.
+
 ![Hnet-image (2)](https://user-images.githubusercontent.com/43264365/139613013-1cc1a319-9eb0-463e-a4cd-4c99b6f83229.gif)
 
 ## Compatibility
