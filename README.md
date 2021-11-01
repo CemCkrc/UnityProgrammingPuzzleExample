@@ -1,6 +1,7 @@
 # Unity Programming Puzzle Example
 
 ## Scene
+![puzzle3](https://user-images.githubusercontent.com/43264365/139613235-a9dd5019-e372-4adb-8c49-e0cb6f4a8db3.png)
 ![gamepuzzle](https://user-images.githubusercontent.com/43264365/139605548-7d291617-557b-4fe6-9472-bb463f9e971c.png)
 
 ## Gameplay
